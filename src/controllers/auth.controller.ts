@@ -5,7 +5,7 @@ import { sendSuccess } from '../utils/response';
 export class AuthController {
   static async register(req: Request, res: Response, next: NextFunction): Promise<any> {
     try {
-      const result = await AuthService.register(req.body);
+      const result = await AuthService.register({ ...req.body, avatar: req.file });
       return sendSuccess(res, 'User registered successfully', result, 201);
     } catch (error) {
       return next(error);

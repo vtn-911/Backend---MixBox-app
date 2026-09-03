@@ -2,9 +2,10 @@ import prisma from '../prisma/prisma.service';
 import { hashPassword, comparePassword } from '../utils/password';
 import { generateToken } from '../utils/jwt';
 import { AppError } from '../middlewares/error.middleware';
+import { saveLocalFile } from '../utils/storage';
 
 export class AuthService {
-  static async register(data: { full_name: string; email: string; password: string }) {
+  static async register(data: { full_name: string; email: string; password: string; avatar?: Express.Multer.File }) {
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },
     });
@@ -15,11 +16,19 @@ export class AuthService {
 
     const passwordHash = await hashPassword(data.password);
 
+    let avatarUrl: string | null = null;
+
+    if (data.avatar) {
+      const storedFile = await saveLocalFile(data.avatar);
+      avatarUrl = storedFile.fileUrl;
+    }
+
     const user = await prisma.user.create({
       data: {
         full_name: data.full_name,
         email: data.email,
         password_hash: passwordHash,
+        avatar_url: avatarUrl,
       },
     });
 
