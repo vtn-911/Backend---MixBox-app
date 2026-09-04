@@ -25,23 +25,23 @@ enum Difficulty {
 }
 
 model User {
-  id            String          @id @default(uuid())
+  id            String   @id @default(uuid())
   full_name     String
-  email         String          @unique
+  email         String   @unique
   password_hash String
   avatar_url    String?
-  created_at    DateTime        @default(now())
-  updated_at    DateTime        @updatedAt
-  
-  documents     Document[]
-  folders       Folder[]
-  saved_docs    SavedDocument[]
-  quizzes       Quiz[]
-  quiz_results  QuizResult[]
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  documents    Document[]
+  folders      Folder[]
+  saved_docs   SavedDocument[]
+  quizzes      Quiz[]
+  quiz_results QuizResult[]
 }
 
 model Document {
-  id            String          @id @default(uuid())
+  id            String     @id @default(uuid())
   owner_id      String
   category_id   String
   folder_id     String?
@@ -52,36 +52,51 @@ model Document {
   file_type     String
   file_size     Int
   page_count    Int?
-  visibility    Visibility      @default(PRIVATE)
-  created_at    DateTime        @default(now())
-  updated_at    DateTime        @updatedAt
-  
-  owner         User            @relation(fields: [owner_id], references: [id], onDelete: Cascade)
-  category      Category        @relation(fields: [category_id], references: [id])
-  folder        Folder?         @relation(fields: [folder_id], references: [id], onDelete: SetNull)
-  saved_by      SavedDocument[]
-  quizzes       Quiz[]
+  visibility    Visibility @default(PRIVATE)
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+
+  owner    User            @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  category Category        @relation(fields: [category_id], references: [id])
+  folder   Folder?         @relation(fields: [folder_id], references: [id], onDelete: SetNull)
+  saved_by SavedDocument[]
+  quizzes  Quiz[]
+  pages    DocumentPage[]
+}
+
+model DocumentPage {
+  id          String @id @default(uuid())
+  document_id String
+  page_number Int
+  image_url   String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  document Document @relation(fields: [document_id], references: [id], onDelete: Cascade)
+
+  @@unique([document_id, page_number])
 }
 
 model Folder {
-  id         String     @id @default(uuid())
+  id         String   @id @default(uuid())
   user_id    String
   name       String
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
-  
-  user       User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  documents  Document[]
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  user      User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  documents Document[]
 }
 
 model Category {
-  id          String     @id @default(uuid())
-  name        String     @unique
+  id          String   @id @default(uuid())
+  name        String   @unique
   description String?
-  created_at  DateTime   @default(now())
-  updated_at  DateTime   @updatedAt
-  
-  documents   Document[]
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  documents Document[]
 }
 
 model SavedDocument {
@@ -89,15 +104,15 @@ model SavedDocument {
   user_id     String
   document_id String
   saved_at    DateTime @default(now())
-  
-  user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  document    Document @relation(fields: [document_id], references: [id], onDelete: Cascade)
+
+  user     User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  document Document @relation(fields: [document_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, document_id])
 }
 
 model Quiz {
-  id             String         @id @default(uuid())
+  id             String       @id @default(uuid())
   creator_id     String
   document_id    String
   title          String
@@ -105,13 +120,13 @@ model Quiz {
   question_count Int
   time_limit     Int?
   difficulty     Difficulty
-  created_at     DateTime       @default(now())
-  updated_at     DateTime       @updatedAt
-  
-  creator        User           @relation(fields: [creator_id], references: [id], onDelete: Cascade)
-  document       Document       @relation(fields: [document_id], references: [id], onDelete: Cascade)
-  questions      QuizQuestion[]
-  results        QuizResult[]
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+
+  creator   User           @relation(fields: [creator_id], references: [id], onDelete: Cascade)
+  document  Document       @relation(fields: [document_id], references: [id], onDelete: Cascade)
+  questions QuizQuestion[]
+  results   QuizResult[]
 }
 
 model QuizQuestion {
@@ -123,20 +138,20 @@ model QuizQuestion {
   explanation   String?      @db.Text
   created_at    DateTime     @default(now())
   updated_at    DateTime     @updatedAt
-  
-  quiz          Quiz         @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
-  answers       QuizAnswer[]
+
+  quiz    Quiz         @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
+  answers QuizAnswer[]
 }
 
 model QuizAnswer {
-  id          String       @id @default(uuid())
+  id          String   @id @default(uuid())
   question_id String
   answer_text String
   is_correct  Boolean
-  created_at  DateTime     @default(now())
-  updated_at  DateTime     @updatedAt
-  
-  question    QuizQuestion @relation(fields: [question_id], references: [id], onDelete: Cascade)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  question QuizQuestion @relation(fields: [question_id], references: [id], onDelete: Cascade)
 }
 
 model QuizResult {
@@ -146,9 +161,9 @@ model QuizResult {
   score         Float
   correct_count Int
   wrong_count   Int
-  time_spent    Int      // in seconds
+  time_spent    Int // in seconds
   completed_at  DateTime @default(now())
-  
-  user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  quiz          Quiz     @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  quiz Quiz @relation(fields: [quiz_id], references: [id], onDelete: Cascade)
 }
