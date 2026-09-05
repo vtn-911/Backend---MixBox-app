@@ -4,6 +4,10 @@ import { AppError } from '../middlewares/error.middleware';
 export class CategoryService {
   static async listCategories() {
     return prisma.category.findMany({
+      select: {
+        id: true,
+        name: true,
+      },
       orderBy: { name: 'asc' },
     });
   }

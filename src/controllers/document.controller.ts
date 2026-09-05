@@ -6,6 +6,15 @@ import { AppError } from '../middlewares/error.middleware';
 import path from 'path';
 
 export class DocumentController {
+  static async getListDocuments(_req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<any> {
+    try {
+      const documents = await DocumentService.getListDocuments();
+      return sendSuccess(res, 'Documents retrieved successfully', documents);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
   static async create(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<any> {
     try {
       const userId = req.user?.userId;
@@ -48,6 +57,7 @@ export class DocumentController {
       return next(error);
     }
   }
+
 
   static async search(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<any> {
     try {

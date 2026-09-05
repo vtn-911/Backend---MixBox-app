@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { DocumentController } from '../controllers/document.controller';
-import { authMiddleware } from '../middlewares/auth.middleware';
+// import { authMiddleware } from '../middlewares/auth.middleware';
 import { uploadDocumentFields } from '../middlewares/upload.middleware';
 import { validateBody, validateQuery } from '../middlewares/validation.middleware';
 import { createDocumentSchema, updateDocumentSchema, documentSearchQuerySchema } from '../validators/document.validator';
 
 const router = Router();
 
-router.use(authMiddleware);
+// router.use(authMiddleware);
+router.get('/listall', DocumentController.getListDocuments);
 
 router.post(
   '/',
